@@ -1,5 +1,7 @@
 import csv
 import statistics
+
+from functions import calculate, correlation
 # 17-32 болезни
 # 0-16 параметры
 
@@ -18,11 +20,7 @@ def permutate(l: list[float]) -> list[float]:
 
 # Расчет корреляции Пирсона
 def pirson(x: list[float], y: list[float]) -> float:
-    return statistics.correlation(x, y, method='linear')
-
-
-def f1(x: float) -> float:
-    return x**2
+    return correlation(x, y, method='linear')
 
 
 def main():
@@ -50,12 +48,23 @@ def main():
     vex_x = permutate(vec_x)
 
     # Применение функций
+    vfx = calculate(vex_x)
 
-    vec_x = [f1(x) for x in vec_x]
-
+    for fx in vfx:
+        print(fx)
+    print()
     # расчет корреляции пирсона
-    r = statistics.correlation(vec_x, vec_y, method='linear')
-    print(r)
+    vr = []
+    for fx in vfx:
+        if fx[0] == sum(fx) / len(fx):
+            continue
+        vr.append(pirson(fx, vec_y))
+
+    for i in range(0, len(vr)):
+        if vr[i] < 0:
+            vr[i] = -vr[i]
+    print(pirson(vec_x, vec_y))
+    print(max(vr))
 
 
 if __name__ == '__main__':
