@@ -1,8 +1,7 @@
-import itertools
 import math
 import decimal
-import operator
-from statistics import StatisticsError, _rank
+from statistics import StatisticsError
+from decimal import Decimal
 
 decimal.getcontext().prec = 16
 
@@ -28,7 +27,7 @@ def pow_negative_3(x):
 
 
 def kbrt(x):
-    return x**(1/3)
+    return x**(Decimal(1/3))
 
 
 def ln(x):
@@ -52,11 +51,11 @@ def arctg(x):
 
 
 def e_pow(x, a=0):
-    return decimal.Decimal(a*x).exp()
+    return Decimal(a*x).exp()
 
 
 def e_pow_2(x):
-    return decimal.Decimal(x**2).exp()
+    return Decimal(x**2).exp()
 
 
 def e1(x):
@@ -91,8 +90,11 @@ def calculate(l: list[float]) -> list[list[float]]:
     return m
 
 
-def my_sumprod(p: list[decimal.Decimal], q: list[decimal.Decimal]) -> decimal.Decimal:
-    return sum(itertools.starmap(operator.mul, zip(p, q, strict=True)))
+def sumprod(p: list[Decimal], q: list[Decimal]) -> Decimal:
+    temp = Decimal(0)
+    for i in range(0, len(p)):
+        temp += p[i] * q[i]
+    return temp
 
 
 def correlation(x, y, /, *, method='linear'):
@@ -106,14 +108,16 @@ def correlation(x, y, /, *, method='linear'):
     if method == 'ranked':
         raise ValueError('Идите на #$*!')
     else:
-        xbar = decimal.Decimal(math.fsum(x) / n)
-        ybar = decimal.Decimal(math.fsum(y) / n)
-        x = [decimal.Decimal(xi) - xbar for xi in x]
-        y = [decimal.Decimal(yi) - ybar for yi in y]
-    sxy = my_sumprod(x, y)
-    sxx = my_sumprod(x, x)
-    syy = my_sumprod(y, y)
+        xbar = Decimal(sum(x) / n)
+        ybar = Decimal(sum(y) / n)
+
+        x = [Decimal(xi) - xbar for xi in x]
+        y = [Decimal(yi) - ybar for yi in y]
+
+    sxy = sumprod(x, y)
+    sxx = sumprod(x, x)
+    syy = sumprod(y, y)
     try:
-        return sxy / decimal.Decimal(sqrt(sxx * syy))
+        return sxy / Decimal(sqrt(sxx * syy))
     except ZeroDivisionError:
         raise StatisticsError('at least one of the inputs is constant')

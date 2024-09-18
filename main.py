@@ -1,6 +1,5 @@
 import csv
-import statistics
-
+from decimal import Decimal
 from functions import calculate, correlation
 # 17-32 болезни
 # 0-16 параметры
@@ -33,7 +32,7 @@ def main():
             l[i][j] = l[i][j].replace(' ', '')
             if ',' in l[i][j]:
                 l[i][j] = l[i][j].replace(',', '.')
-            l[i][j] = float(l[i][j])
+            l[i][j] = Decimal(l[i][j])
 
     n = 16 + 1  # Индекс болезни
 
@@ -63,6 +62,7 @@ def main():
     for i in range(0, len(vr)):
         if vr[i] < 0:
             vr[i] = -vr[i]
+    print(vr)
     print(pirson(vec_x, vec_y))
     print(max(vr))
 
