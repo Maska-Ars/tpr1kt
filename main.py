@@ -1,8 +1,11 @@
 import csv
-from decimal import Decimal
-from functions import calculate, correlation
+from decimal import Decimal, getcontext
+from functions import calculate, correlation, e1
+from data_preprocessing import run, step1
 # 17-32 болезни
 # 0-16 параметры
+
+getcontext().prec = 64
 
 
 def read(file: str) -> list[list]:
@@ -35,36 +38,20 @@ def main():
             l[i][j] = Decimal(l[i][j])
 
     n = 16 + 1  # Индекс болезни
-
     print(l[0][n])
+
     vec_y = [y[n] for y in l]  # управляемый фактор
-
     vec_x = [y[0] for y in l]  # управляющий фактор
-    print(max(vec_x), min(vec_x))
-    print(sum(vec_x)/len(vec_x))
 
-    # Преобразование отрезка на отрезок [2, 102]
-    vex_x = permutate(vec_x)
-
-    # Применение функций
-    vfx = calculate(vex_x)
-
-    for fx in vfx:
-        print(fx)
     print()
-    # расчет корреляции пирсона
-    vr = []
-    for fx in vfx:
-        if fx[0] == sum(fx) / len(fx):
-            continue
-        vr.append(pirson(fx, vec_y))
+    print()
 
-    for i in range(0, len(vr)):
-        if vr[i] < 0:
-            vr[i] = -vr[i]
-    print(vr)
-    print(pirson(vec_x, vec_y))
-    print(max(vr))
+    matrix = []
+
+    for i in range(0, 16):
+        vec_x = [y[i] for y in l]
+        x, func = run(vec_x, vec_y)
+        matrix.append(x)
 
 
 if __name__ == '__main__':
