@@ -2,6 +2,8 @@ import csv
 from decimal import Decimal, getcontext
 from functions import calculate, correlation, e1
 from data_preprocessing import run, step1
+import json
+
 # 17-32 болезни
 # 0-16 параметры
 
@@ -14,28 +16,72 @@ def read(file: str) -> list[list]:
         return [line for line in reader]
 
 
-# Преобразование на отрезок [2:102]
-def permutate(l: list[float]) -> list[float]:
-    m = max(l)
-    return [2 + i / m * 100 for i in l]
+def list_to_json(l: list) -> None:
+    d = {
+        'x': {},
+        'y': {}
+    }
+    for i in range(0, 17):
+        values = []
+        for j in range(1, len(l)):
+            values.append(l[j][i])
+        d['x'].setdefault(f'x{i+1}', values)
+    for i in range(17, 33):
+        values = []
+        for j in range(1, len(l)):
+            values.append(l[j][i])
+        d['y'].setdefault(f'y{i-17+1}', values)
+
+    with open('data.json', 'w+') as file:
+        json.dump(d, file, indent=2)
+    return None
 
 
-# Расчет корреляции Пирсона
-def pirson(x: list[float], y: list[float]) -> float:
-    return correlation(x, y, method='linear')
+def pairwise_product(data: dict[str, dict[str, list]]) -> None:
+    d = {'x': data['x'], 'y': data['y']}
+    mx = list(data['x'].keys())
+    for i in range(0, len(mx)-1):
+        x1 = mx[i]
+        x2 = mx[i+1]
+        vx1 = data['x'][x1]
+        vx2 = data['x'][x2]
+        v = []
+        for i in range(0, len(vx1)):
+            v.append(vx1[i] * vx2[i])
+        d['x'].setdefault(f'{x1}*{x2}', v)
+
+    with open('data_pairwise_product.json', 'w+') as file:
+        json.dump(d, file, indent=2)
+    return None
+
+
+
 
 
 def main():
     l = read('Показатели 2005-2018 (24-01-20).csv')
     l[0][0] = 'ГОД'
     print(l[0][19])
-    l = [line[2:] for line in l[1:-46]]
+    l = [line[2:] for line in l[0:-46]]
     for i in range(0, len(l)):
         for j in range(0, len(l[0])):
             l[i][j] = l[i][j].replace(' ', '')
             if ',' in l[i][j]:
                 l[i][j] = l[i][j].replace(',', '.')
-            l[i][j] = Decimal(l[i][j])
+            try:
+                l[i][j] = float(l[i][j])
+            except:
+                print(l[i][j])
+
+    list_to_json(l)
+
+    with open('data.json', 'r') as file:
+        data = json.load(file)
+
+    pairwise_product(data)
+
+    return
+
 
     n = 16 + 1  # Индекс болезни
     print(l[0][n])

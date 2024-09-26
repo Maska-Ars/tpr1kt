@@ -1,8 +1,10 @@
-from decimal import Decimal, getcontext
+import decimal
+from decimal import Decimal
 from functions import e3, pow_negative_3
-getcontext().prec = 64
 
-x = Decimal()
-print(x)
-f = pow_negative_3(e3(x))
-print(f)
+
+if __name__ == '__main__':
+    decimal.getcontext().prec = 8
+
+    x = Decimal(224.2) * Decimal(33.9)
+    print(str(x))
