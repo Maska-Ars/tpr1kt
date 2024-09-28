@@ -175,3 +175,28 @@ def pair_correlation(x1: list[Decimal], x2: list[Decimal]):
     sx2 = sum([Decimal(x**2) for x in x2])
 
     return sx1x2 / sqrt(sx1 * sx2)
+
+
+def pairwise_product(data: dict[str, dict[str, list]]) -> dict[str, dict[str, list]]:
+    d = {'x': data['x'], 'y': data['y']}
+    mx = list(data['x'].keys())
+    for i in range(0, len(mx)):
+        x1 = mx[i]
+        vx1 = data['x'][x1]
+        for j in range(i+1, len(mx)):
+            x2 = mx[j]
+            vx2 = data['x'][x2]
+            v = []
+            for i in range(0, len(vx1)):
+                v.append(vx1[i] * vx2[i])
+            d['x'].setdefault(f'{x1}*{x2}', v)
+
+    for key in data['x'].keys():
+        for i in range(0, len(data['x'][key])):
+            data['x'][key][i] = str(data['x'][key][i])
+
+    for key in data['y'].keys():
+        for i in range(0, len(data['y'][key])):
+            data['y'][key][i] = str(data['y'][key][i])
+
+    return d

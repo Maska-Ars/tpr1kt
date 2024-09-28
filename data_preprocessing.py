@@ -1,5 +1,6 @@
 from decimal import Decimal, getcontext
 from functions import calculate, correlation
+from threading import Thread
 
 getcontext().prec = 64
 
@@ -10,8 +11,10 @@ def step1(x: list[Decimal]) -> list[Decimal]:
     :param x: вектор значений управляющего фактора;
     :return: Возвращает вектор значений x преобразованный на отрезок [2, 102]
     """
-    m = max(x)
-    return [2 + i / m * 100 for i in x]
+    sup = max(x)
+    inf = min(x)
+
+    return [2 + (i - inf) / (sup - inf) * 100 for i in x]
 
 
 def step2(x: list[Decimal], y: list[Decimal]) -> tuple[Decimal, list[Decimal], str]:
@@ -67,3 +70,81 @@ def run(x: list[Decimal],
         i -= 1
 
     return x, vf
+
+
+class AlgTh:
+
+    def __init__(self, data: dict):
+        self.data = data
+
+    def run(self,
+            x: str,
+            y: str,
+            i: int = 2) -> None:
+        vx = self.data['x'][x]
+        vy = self.data['y'][y]
+
+        vx, vf = run(vx, vy, i)
+
+        self.data['x'][x] = vx
+        self.data['functions'][x] = vf
+
+        return None
+
+    def run_all_in_threads(self, y: int, i: int = 2) -> dict:
+        self.data.setdefault('functions', {})
+
+        for x in self.data['x'].keys():
+            self.data['functions'].setdefault(x, [])
+
+        yn = f'y{y}'
+
+        threads = []
+        for x in self.data['x'].keys():
+            thread = Thread(target=self.run, args=(x, yn, i))
+            threads.append(thread)
+
+        for thread in threads:
+            thread.start()
+
+        for i in range(0, len(threads)):
+            threads[i].join()
+            print(i)
+
+        return self.data
+
+    def run_all_in_sync(self, y: int, i: int = 2) -> dict:
+        self.data.setdefault('functions', {})
+
+        for x in self.data['x'].keys():
+            self.data['functions'].setdefault(x, [])
+
+        yn = f'y{y}'
+
+        for x in self.data['x'].keys():
+            self.run(x, yn, i)
+            print(f'{x} завершен')
+
+        return self.data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
