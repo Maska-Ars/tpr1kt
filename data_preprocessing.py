@@ -55,24 +55,34 @@ def step3(x: list[Decimal],
 def run(x: list[Decimal],
         y: list[Decimal],
         i: int = 2) -> tuple[list[Decimal], list[str]]:
+    """
+    Запуск алгоритма
+    :param x: вектор значений управляющего фактора на отрезке [2, 102];
+    :param y: вектор значений управляемого фактора;
+    :param i: максимальное количество проходов алгоритма;
+    :return: Возвращает измененный вектор значений управляющего фактора и список примененных функций.
+    """
     flag = True
     vf = []
     while flag and i > 0:
         x = step1(x)
-        # print('step1')
+
         rmax, fx, name_func = step2(x, y)
-        # print('step2')
+
         new_x, flag = step3(x, y, rmax, fx)
         if flag:
             x = new_x
             vf.append(name_func)
-        # print('step3', name_func)
+
         i -= 1
 
     return x, vf
 
 
 class AlgTh:
+    """
+    Класс для многопоточного запуска алгоритма
+    """
 
     def __init__(self, data: dict):
         self.data = data
@@ -111,7 +121,11 @@ class AlgTh:
             threads[i].join()
             print(i)
 
-        return self.data
+        return {
+            'y': {f'{yn}': self.data['y'][yn]},
+            'functions': self.data['functions'],
+            'x': self.data['x']
+            }
 
     def run_all_in_sync(self, y: int, i: int = 2) -> dict:
         self.data.setdefault('functions', {})
