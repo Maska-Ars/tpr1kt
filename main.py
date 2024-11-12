@@ -4,6 +4,10 @@ from functions import (
     correlation
 )  # Для расчетов
 
+from first_stage import gen_all_models
+from second_stage import cor_model
+
+
 from data_preprocessing import run, AlgTh  # Для расчетов
 
 from conversion import dict_to_json, json_to_dict, csv_to_dict  # Для сохранения и чтения данных
@@ -35,8 +39,6 @@ def compare_correlation(file1: str = 'data_pairwise_product.json', file2: str = 
             print(x, abs(round(data1_cor[x],4)), abs(round(data2_cor[x], 4)),  data2['functions'][x], round(abs(round(data2_cor[x],4)) / abs(round(data1_cor[x], 4)) ))
 
 
-
-
 def main():
     ''''# Чтение значений из csv
     data = csv_to_dict('Показатели 2005-2018 (24-01-20).csv')
@@ -63,8 +65,12 @@ def main():
 
     dict_to_json(data, 'func_y1.json')'''
 
-    compare_correlation()
+    l = gen_all_models(0.7, 15)
+    for vx in l:
+        print(len(vx), sorted(vx))
 
+        x = cor_model(vx, 0.1)
+        print(len(x), x)
     return
 
 
