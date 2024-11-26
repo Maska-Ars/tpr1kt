@@ -6,11 +6,13 @@ from functions import (
 
 from first_stage import gen_all_models
 from second_stage import cor_model
+from third_stage import search_vector_k
 
 
 from data_preprocessing import run, AlgTh  # Для расчетов
 
 from conversion import dict_to_json, json_to_dict, csv_to_dict  # Для сохранения и чтения данных
+from symmetry import check_symmetry
 
 from time import time
 
@@ -65,12 +67,47 @@ def main():
 
     dict_to_json(data, 'func_y1.json')'''
 
-    l = gen_all_models(0.7, 15)
-    for vx in l:
-        print(len(vx), sorted(vx))
+    l = gen_all_models(0.7, 1)[0]
+    print()
+    model = cor_model(l, 0.13)
+    print(len(model), model)
 
-        x = cor_model(vx, 0.1)
-        print(len(x), x)
+    data = json_to_dict('func_y3.json')
+    y = [float(i) for i in data['y']['y3']]
+    # print(y)
+
+
+    mx = [[1 for i in range(0, len(y))]]
+    for x in model:
+        float_vx = [float(i) for i in data['x'][x]]
+        mx.append(float_vx)
+
+    k = search_vector_k(mx, y)
+    print(len(k), k)
+    m = []
+    for i in range(0, len(model)):
+        x = model[i]
+        kx = k[i+1]
+        vx = [float(j)*kx for j in data['x'][x]]
+        m.append(vx)
+    max_p = None
+    ve = []
+    for i in range(0, len(m[0])):
+        f = k[0]
+        for j in range(0, len(m)):
+            f += m[j][i]
+        # print(f, y[i], y[i]-f)
+        ve.append(y[i]-f)
+        if max_p is None:
+            max_p = abs(y[i]-f)
+        elif max_p < abs(y[i]-f):
+            max_p = abs(y[i]-f)
+
+    print(ve)
+    print(f'w^2 = {check_symmetry(ve)}')
+    
+    # primer = [20, 18, -2, 34, 25, -17, 24, 42, 16, 26, 13, -23, 35, 21, 19, 8, 27, 11, -5, 7]
+    # print(check_symmetry(primer))
     return
 
 
